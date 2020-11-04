@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dqh.core.dao.DepartmentDao">
+    <resultMap id="departmentResult" type="com.dqh.core.po.Department">
+        <id column="department_id" jdbcType="INTEGER" property="departmentId" />
+        <result column="department_code" jdbcType="VARCHAR" property="departmentCode" />
+        <result column="department_name" jdbcType="VARCHAR" property="departmentName" />
+    </resultMap>
+    <select id="selectDepartmentByDepartmentCode" parameterType="String" resultMap="departmentResult">
+      select * from department
+      where department_code = #{departmentCode}
+    </select>
+    <select id="selectAllDepartment" resultMap="departmentResult">
+        select * from department
+    </select>
+</mapper>

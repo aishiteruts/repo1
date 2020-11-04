@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dqh.core.dao.UserDao">
+    <resultMap id="user" type="com.dqh.core.po.User">
+        <id column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="user_code" jdbcType="VARCHAR" property="userCode"/>
+        <result column="user_password" jdbcType="VARCHAR" property="userPassword"/>
+        <result column="user_name" jdbcType="VARCHAR" property="userName"/>
+        <result column="user_idcard" jdbcType="VARCHAR" property="userIdcard"/>
+        <result column="user_phone" jdbcType="VARCHAR" property="userPhone"/>
+        <result column="user_address" jdbcType="VARCHAR" property="userAddress"/>
+        <result column="department_code" jdbcType="VARCHAR" property="departmentCode"/>
+    </resultMap>
+    <resultMap id="userResult" type="com.dqh.core.pojo.ResultUser">
+        <id column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="user_code" jdbcType="VARCHAR" property="userCode"/>
+        <result column="user_password" jdbcType="VARCHAR" property="userPassword"/>
+        <result column="user_name" jdbcType="VARCHAR" property="userName"/>
+        <result column="user_idcard" jdbcType="VARCHAR" property="userIdcard"/>
+        <result column="user_phone" jdbcType="VARCHAR" property="userPhone"/>
+        <result column="user_address" jdbcType="VARCHAR" property="userAddress"/>
+        <result column="department_id" jdbcType="INTEGER" property="departmentId"/>
+        <result column="department_code" jdbcType="VARCHAR" property="departmentCode"/>
+        <result column="department_name" jdbcType="VARCHAR" property="departmentName"/>
+    </resultMap>
+    <select id="finUser" parameterType="com.dqh.core.po.User" resultMap="user">
+        select * from user
+        where user_code = #{userCode} and user_password = #{userPassword}
+    </select>
+    <!--SQL片段  -->
+    <sql id="selectUserListWhere">
+        <where>
+            <if test="userName != null">
+                user_name like "%"#{userName}"%"
+            </if>
+            <if test="departmentCode != null">
+                and user.department_code = #{departmentCode}
+            </if>
+        </where>
+    </sql>
+    <select id="selectUserList" parameterType="com.dqh.core.pojo.ResultUser" resultMap="userResult">
+        SELECT
+        user_id,
+        user_code,
+        user_password,
+        user_name,
+        user_idcard,
+        user_phone,
+        user_address,
+        department_id,
+        user.department_code as department_code,
+        department_name
+        FROM user JOIN department ON user.department_code = department.department_code
+        <include refid="selectUserListWhere"/>
+        <!-- 执行分页查询 -->
+        <if test="start !=null and rows != null">
+            limit #{start},#{rows}
+        </if>
+    </select>
+    <select id="selectUserListCount" parameterType="com.dqh.core.po.User" resultType="Integer">
+        select count(*) from user
+        <include refid="selectUserListWhere"/>
+    </select>
+    <insert id="createUser" parameterType="com.dqh.core.po.User">
+        insert into user(
+            user_id,
+            user_code,
+            user_password,
+            user_name,
+            user_idcard,
+            user_phone,
+            user_address,
+            department_code
+        )
+        values(
+            #{userId},
+            #{userCode},
+            #{userPassword},
+            #{userName},
+            #{userIdcard},
+            #{userPhone},
+            #{userAddress},
+            #{departmentCode}
+        )
+    </insert>
+    <select id="getUserByUserCode" parameterType="String" resultMap="user">
+        select * from user where user_code = #{userCode}
+    </select>
+    <update id="updateUser" parameterType="com.dqh.core.po.User">
+        update user
+        <set>
+            <if test="userId!=null">
+                user_id=#{userId},
+            </if>
+            <if test="userCode!=null">
+                user_code=#{userCode},
+            </if>
+            <if test="userPassword!=null">
+                newspaper_name=#{newspaperName},
+            </if>
+            <if test="userName!=null">
+                user_name=#{userName},
+            </if>
+            <if test="userIdcard!=null">
+                user_idcard=#{userIdcard},
+            </if>
+            <if test="userPhone!=null">
+                user_phone=#{userPhone},
+            </if>
+            <if test="userAddress!=null">
+                user_address=#{userAddress},
+            </if>
+            <if test="departmentCode!=null">
+                department_code=#{departmentCode}
+            </if>
+        </set>
+        where user_code=#{userCode}
+    </update>
+    <delete id="deleteUser" parameterType="String">
+        delete from user where user_code = #{userCode}
+    </delete>
+    <select id="existUser" parameterType="String" resultType="Integer">
+        select count(*) from `user` where user_code = #{userCode}
+    </select>
+</mapper>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dqh.core.dao.OrderDao">
+
+    <resultMap id="order" type="com.dqh.core.po.Order">
+        <id column="order_id" jdbcType="INTEGER" property="orderId"/>
+        <result column="user_code" jdbcType="VARCHAR" property="userCode"/>
+        <result column="newspaper_code" jdbcType="VARCHAR" property="newspaperCode"/>
+        <result column="order_portion" jdbcType="INTEGER" property="orderPortion"/>
+        <result column="order_month" jdbcType="INTEGER" property="orderMonth"/>
+    </resultMap>
+    <resultMap id="orderResult" type="com.dqh.core.pojo.ResultOrder">
+        <id column="order_id" jdbcType="INTEGER" property="orderId"/>
+        <result column="user_code" jdbcType="VARCHAR" property="userCode"/>
+        <result column="newspaper_code" jdbcType="VARCHAR" property="newspaperCode"/>
+        <result column="newspaper_name" jdbcType="VARCHAR" property="newspaperName"/>
+        <result column="order_portion" jdbcType="INTEGER" property="orderPortion"/>
+        <result column="order_month" jdbcType="INTEGER" property="orderMonth"/>
+    </resultMap>
+
+    <sql id="selectOrderListWhere">
+        <where>
+            <if test="newspaperName != null">
+                newspaper_name like "%"#{newspaperName}"%"
+            </if>
+            <if test="userCode != null">
+                and user_code = #{userCode}
+            </if>
+        </where>
+    </sql>
+
+    <insert id="createOrder" parameterType="com.dqh.core.po.Order" >
+        insert into `order`(
+            user_code,
+            newspaper_code,
+            order_portion,
+            order_month
+        )
+        values(
+            #{userCode},
+            #{newspaperCode},
+            #{orderPortion},
+            #{orderMonth}
+        )
+    </insert>
+
+    <select id="selectOrderByUserCode" parameterType="com.dqh.core.pojo.ResultOrder" resultMap="orderResult">
+        select * from `order`
+        where user_code = #{userCode}
+        <!-- 执行分页查询 -->
+        <if test="start !=null and rows != null">
+            limit #{start},#{rows}
+        </if>
+    </select>
+
+    <delete id="deleteOrderByUserAndNewspaper" parameterType="map" >
+        delete from `order`
+        where user_code = #{userCode} and newspaper_code = #{newspaperCode}
+    </delete>
+
+    <delete id="deleteOrder" parameterType="Integer">
+        delete from `order`
+        where order_id = #{orderId}
+    </delete>
+    <!-- 查询报刊列表  -->
+    <select id="selectOrderList" parameterType="com.dqh.core.pojo.ResultOrder"
+            resultMap="orderResult">
+        SELECT
+        order_id
+        user_code,
+        `order`.newspaper_code,
+        newspaper_name,
+        order_portion,
+        order_month
+        FROM `order` JOIN newspaper ON `order`.newspaper_code = newspaper.newspaper_code
+        <include refid="selectOrderListWhere"/>
+        <!-- 执行分页查询 -->
+        <if test="start !=null and rows != null">
+            limit #{start},#{rows}
+        </if>
+    </select>
+    <select id="selectOrderListCount" parameterType="com.dqh.core.pojo.ResultOrder" resultType="Integer">
+        select count(*)
+        FROM `order` JOIN newspaper ON `order`.newspaper_code = newspaper.newspaper_code
+        <include refid="selectOrderListWhere"/>
+    </select>
+</mapper>

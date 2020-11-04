@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dqh.core.dao.NewspaperDao">
+    <resultMap id="newspaperResult" type="com.dqh.core.pojo.ResultNewspaper">
+        <id column="newspaper_id" jdbcType="INTEGER" property="newspaperId" />
+        <result column="newspaper_code" jdbcType="VARCHAR" property="newspaperCode" />
+        <result column="newspaper_name" jdbcType="VARCHAR" property="newspaperName" />
+        <result column="newspaper_publish" jdbcType="VARCHAR" property="newspaperPublish" />
+        <result column="newspaper_cycle" jdbcType="INTEGER" property="newspaperCycle" />
+        <result column="newspaper_quotation" jdbcType="REAL" property="newspaperQuotation" />
+        <result column="newspaper_brief" jdbcType="VARCHAR" property="newspaperBrief" />
+        <result column="newspaperclass_id" jdbcType="INTEGER" property="newspaperClassId" />
+        <result column="newspaperclass_code" jdbcType="VARCHAR" property="newspaperClassCode" />
+        <result column="newspaperclass_name" jdbcType="VARCHAR" property="newspaperClassName" />
+    </resultMap>
+    <resultMap id="newspaper" type="com.dqh.core.po.Newspaper">
+        <id column="newspaper_id" jdbcType="INTEGER" property="newspaperId" />
+        <result column="newspaper_code" jdbcType="VARCHAR" property="newspaperCode" />
+        <result column="newspaper_name" jdbcType="VARCHAR" property="newspaperName" />
+        <result column="newspaper_publish" jdbcType="VARCHAR" property="newspaperPublish" />
+        <result column="newspaper_cycle" jdbcType="INTEGER" property="newspaperCycle" />
+        <result column="newspaper_quotation" jdbcType="REAL" property="newspaperQuotation" />
+        <result column="newspaper_brief" jdbcType="VARCHAR" property="newspaperBrief" />
+        <result column="newspaperclass_code" jdbcType="VARCHAR" property="newspaperClassCode" />
+    </resultMap>
+    <!--SQL片段  -->
+    <sql id="selectNewspaperListWhere">
+        <where>
+            <if test="newspaperName != null">
+                newspaper_name like "%"#{newspaperName}"%"
+            </if>
+            <if test="newspaperClassCode != null">
+                and newspaper.newspaperClass_code = #{newspaperClassCode}
+            </if>
+        </where>
+    </sql>
+    <!-- 查询报刊列表  -->
+    <select id="selectNewspaperList" parameterType="com.dqh.core.pojo.ResultNewspaper"
+            resultMap="newspaperResult">
+        SELECT
+        newspaper_id,
+        newspaper_code,
+        newspaper_name,
+        newspaper_publish,
+        newspaper_cycle,
+        newspaper_quotation,
+        newspaper_brief,
+        newspaperclass_id,
+        newspaper.newspaperclass_code as newspaperclass_code,
+        newspaperclass_name
+        FROM newspaper JOIN newspaperclass ON newspaper.newspaperclass_code = newspaperclass.newspaperclass_code
+        <include refid="selectNewspaperListWhere"/>
+        <!-- 执行分页查询 -->
+        <if test="start !=null and rows != null">
+            limit #{start},#{rows}
+        </if>
+    </select>
+    <!-- 查询报刊总数 -->
+    <select id="selectNewspaperListCount" parameterType="com.dqh.core.po.Newspaper"
+            resultType="Integer">
+        select count(*) from newspaper
+        <include refid="selectNewspaperListWhere"/>
+    </select>
+
+    <!-- 新增报刊 -->
+    <insert id="createNewspaper" parameterType="com.dqh.core.po.Newspaper">
+	    insert into newspaper(
+            newspaper_id,
+            newspaper_code,
+            newspaper_name,
+            newspaper_publish,
+            newspaper_cycle,
+            newspaper_quotation,
+            newspaper_brief,
+            newspaperclass_code
+	    )
+	    values(
+	            #{newspaperId},
+                #{newspaperCode},
+                #{newspaperName},
+                #{newspaperPublish},
+                #{newspaperCycle},
+                #{newspaperQuotation},
+                #{newspaperBrief},
+                #{newspaperClassCode}
+	    )
+	</insert>
+    <!-- 通过报刊代号查询报刊 -->
+    <select id="getNewspaperByNewspaperCode" parameterType="String"
+            resultMap="newspaper">
+	    select * from newspaper where newspaper_code = #{newspaperCode}
+	</select>
+    <!-- 更新报刊信息 -->
+    <update id="updateNewspaper" parameterType="com.dqh.core.po.Newspaper">
+        update newspaper
+        <set>
+            <if test="newspaperId!=null">
+                newspaper_id=#{newspaperId},
+            </if>
+            <if test="newspaperCode!=null">
+                newspaper_code=#{newspaperCode},
+            </if>
+            <if test="newspaperName!=null">
+                newspaper_name=#{newspaperName},
+            </if>
+            <if test="newspaperPublish!=null">
+                newspaper_publish=#{newspaperPublish},
+            </if>
+            <if test="newspaperCycle!=null">
+                newspaper_cycle=#{newspaperCycle},
+            </if>
+            <if test="newspaperQuotation!=null">
+                newspaper_quotation=#{newspaperQuotation},
+            </if>
+            <if test="newspaperBrief!=null">
+                newspaper_brief=#{newspaperBrief},
+            </if>
+            <if test="newspaperClassCode!=null">
+                newspaperclass_code=#{newspaperClassCode}
+            </if>
+        </set>
+        where newspaper_code=#{newspaperCode}
+    </update>
+    <!-- 删除报刊 -->
+    <delete id="deleteNewspaper" parameterType="String">
+	    delete from newspaper where newspaper_code=#{newspaperCode}
+	</delete>
+</mapper>
